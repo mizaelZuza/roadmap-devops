@@ -5,7 +5,7 @@
 
 ---
 
-## 1️⃣ `dig` – Domain Information Groper
+## 1️⃣ `dig` - Domain Information Groper
 
 ### 🔍 O que é
 `dig` é uma ferramenta poderosa para realizar consultas DNS e obter informações detalhadas sobre registros de domínio (A, MX, NS, TXT, etc.).
@@ -50,7 +50,7 @@ dig [opções] <domínio> [tipo_de_registro] [@servidor_dns]
 
 ---
 
-## 2️⃣ `ping` – Packet Internet Groper
+## 2️⃣ `ping` - Packet Internet Groper
 
 ### 🔍 O que é
 `ping` envia pacotes ICMP "echo request" para um destino a fim de testar a conectividade e medir a latência (tempo de ida e volta).
@@ -95,7 +95,7 @@ ping [opções] <host_ou_ip>
 
 ---
 
-## 3️⃣ `ip` – iproute2
+## 3️⃣ `ip` - iproute2
 
 ### 🔍 O que é
 O comando `ip` é a ferramenta moderna para visualizar e manipular roteamento, dispositivos de rede, interfaces e túneis. Ele substitui comandos legados como `ifconfig` e `route`.
@@ -133,7 +133,7 @@ ip [objeto] [comando]
 
 ---
 
-## 4️⃣ `ssh` – Secure Shell
+## 4️⃣ `ssh` - Secure Shell
 
 ### 🔍 O que é
 `ssh` é o protocolo e a ferramenta padrão para acessar e gerenciar servidores remotos de forma segura. Ele criptografa toda a comunicação entre o cliente e o servidor.
@@ -170,7 +170,7 @@ ssh [usuário]@[host] [opções]
 
 ---
 
-## 5️⃣ `iperf3` – Network Bandwidth Measurement
+## 5️⃣ `iperf3` - Network Bandwidth Measurement
 
 ### 🔍 O que é
 `iperf3` é uma ferramenta para medir a largura de banda máxima que uma rede pode suportar. Funciona em modo cliente/servidor.

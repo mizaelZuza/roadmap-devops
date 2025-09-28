@@ -16,10 +16,10 @@ Este repositório reúne pequenos guias em Markdown sobre utilitários essenciai
 ## 🔧 Ferramentas Principais
 
 ### 1️⃣ Rede & Performance  
-- **dig** – consulta DNS detalhada.  
-- **ping** – teste de conectividade e latência.  
-- **ip** – gerenciamento de interfaces e rotas.  
-- **ssh** – acesso remoto seguro.  
-- **iperf3** – teste de largura de banda.
+- **dig** - consulta DNS detalhada.  
+- **ping** - teste de conectividade e latência.  
+- **ip** - gerenciamento de interfaces e rotas.  
+- **ssh** - acesso remoto seguro.  
+- **iperf3** - teste de largura de banda.
 
 ---

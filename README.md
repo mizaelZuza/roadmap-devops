@@ -1,7 +1,7 @@
 # 📚 Roadmap de Estudos DevOps
 
 > **Definição**
-> Este repositório é um centralizador de conhecimento e um diário de bordo dos meus estudos na jornada DevOps. O conteúdo é organizado por áreas de competência, servindo como um guia de consulta rápida para ferramentas e conceitos.
+> Este repositório centraliza conhecimentos e funciona como um diário de bordo dos meus estudos na jornada DevOps. O conteúdo é organizado por áreas de competência, servindo como um guia de consulta rápida para ferramentas e conceitos.
 
 ---
 

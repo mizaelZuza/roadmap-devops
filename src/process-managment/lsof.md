@@ -1,5 +1,4 @@
-```markdown
-# lsof – List Open Files
+# lsof - List Open Files
 
 > **Definição**  
 > `lsof` (List Open Files) é uma ferramenta de linha de comando que lista todos os arquivos abertos por processos em sistemas Linux/Unix, incluindo sockets, pipes e dispositivos.
@@ -101,4 +100,4 @@ fi
 - Documentação oficial: https://linux.die.net/man/8/lsof
 - Tutoriais online e exemplos de uso em blogs especializados.
 
---- 
+---

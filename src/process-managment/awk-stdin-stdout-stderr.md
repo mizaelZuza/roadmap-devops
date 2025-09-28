@@ -67,9 +67,9 @@ awk 'PATTERN { ACTION }' arquivo.txt
 ### O que é
 São **fluxos** (streams) de dados padrão em sistemas Unix/Linux:
 
-- **STDIN** (`fd 0`): entrada padrão – onde um comando lê dados quando não recebe arquivos como argumento.
-- **STDOUT** (`fd 1`): saída padrão – onde um comando escreve resultados normalmente exibidos no terminal.
-- **STDERR** (`fd 2`): erro padrão – onde mensagens de erro são enviadas, separadas da saída normal para facilitar o tratamento.
+- **STDIN** (`fd 0`): entrada padrão - onde um comando lê dados quando não recebe arquivos como argumento.
+- **STDOUT** (`fd 1`): saída padrão - onde um comando escreve resultados normalmente exibidos no terminal.
+- **STDERR** (`fd 2`): erro padrão - onde mensagens de erro são enviadas, separadas da saída normal para facilitar o tratamento.
 
 Esses fluxos permitem encadear comandos (pipes) e redirecionar dados entre arquivos ou dispositivos.
 
@@ -98,7 +98,7 @@ cat dados.csv | awk -F, '{ print $1 }' > primeiros_valores.txt 2> awk_erros.log
 | Fluxo | Uso típico |
 |-------|------------|
 | **STDIN** | Receber dados de outro comando, de arquivos ou de entrada interativa. |
-| **STDOUT** | Produzir resultados visíveis ao usuário ou passá‑los para outros comandos/arquivos. |
+| **STDOUT** | Produzir resultados visíveis ao usuário ou passá-los para outros comandos/arquivos. |
 | **STDERR** | Emitir mensagens de erro, alertas ou avisos que não devem misturar com a saída principal. |
 
 ### Diferenças

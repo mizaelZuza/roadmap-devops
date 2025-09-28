@@ -19,14 +19,14 @@ O objetivo é ter um ponto único de consulta, onde cada arquivo descreve uma fe
 ## 🔧 Ferramentas Principais
 
 ### 1️⃣ Monitoramento  
-- **lsof** – lista arquivos abertos e processos que os usam.  
-- **free** – mostra uso de memória RAM e swap.
-- **vmstat** – exibe estatísticas de uso da CPU, memória, processos e I/O.
+- **lsof** - lista arquivos abertos e processos que os usam.  
+- **free** - mostra uso de memória RAM e swap.
+- **vmstat** - exibe estatísticas de uso da CPU, memória, processos e I/O.
 
 ### 2️⃣ Manipulação de Texto e I/O
-- **awk** – processamento de texto e dados.
-- **stdin** – entrada padrão de dados.
-- **stdout** – saída padrão de dados.
-- **stderr** – saída padrão de erros.
+- **awk** - processamento de texto e dados.
+- **stdin** - entrada padrão de dados.
+- **stdout** - saída padrão de dados.
+- **stderr** - saída padrão de erros.
 
 ---

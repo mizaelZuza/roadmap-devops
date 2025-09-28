@@ -1,4 +1,3 @@
-```markdown
 # 📊 Ferramentas de Monitoramento: `vmstat` e `free`
 
 > **Objetivo**  
@@ -6,7 +5,7 @@
 
 ---
 
-## 🛠️ 1. `vmstat` – Virtual Memory Statistics
+## 🛠️ 1. `vmstat` - Virtual Memory Statistics
 
 ### 🔍 O que é
 `vmstat` exibe estatísticas de uso da CPU, memória, processos e I/O em tempo real ou por intervalo. É ideal para identificar gargalos de **CPU**, **memória**, **swap** e **disco**.
@@ -60,7 +59,7 @@ vmstat 2 5
 
 ---
 
-## 🛠️ 2. `free` – Estatísticas de Memória
+## 🛠️ 2. `free` - Estatísticas de Memória
 
 ### 🔍 O que é
 `free` exibe estatísticas rápidas do uso da memória RAM e swap, sendo mais simples e direto que o `vmstat`.
@@ -87,7 +86,7 @@ free -h
 | `used` | Memória usada (inclui cache, que pode ser liberado). |
 | `free` | Memória realmente livre. |
 | `buff/cache` | Memória em buffers e cache (pode ser liberada se necessário). |
-| `available` | Memória disponível para novos processos – métrica mais confiável do que `free`. |
+| `available` | Memória disponível para novos processos - métrica mais confiável do que `free`. |
 
 ### 📌 Quando Usar
 - Verificar rapidamente se a máquina está com **falta de memória**.
@@ -107,8 +106,8 @@ free -h
 
 ## 💡 Dicas Práticas
 
-- **Performance geral** → use `vmstat` para identificar a origem (CPU, I/O, swap).
-- **Memória específica** → use `free` ou `top -M` para foco em RAM.
+- **Performance geral** -> use `vmstat` para identificar a origem (CPU, I/O, swap).
+- **Memória específica** -> use `free` ou `top -M` para foco em RAM.
 - Combine as duas ferramentas: por exemplo, `vmstat 1 | grep "0 0"` para ver quando não há processos bloqueados nem I/O pendente.
 
 ---
