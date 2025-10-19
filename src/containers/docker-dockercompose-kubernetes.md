@@ -375,3 +375,8 @@ kubectl [OPÇÃO] COMANDO ARGS...
 - Use **Docker Compose** para coordenar vários containers que fazem parte da mesma stack, simplificando o deploy e a manutenção.
 
 > **Dica final:** Mantenha seu `docker-compose.yml` versionado no Git e documente os comandos essenciais (up/down/logs) no README do projeto. Isso garante consistência entre desenvolvedores e pipelines de CI/CD.
+
+
+
+-----
+- Entendendo containeres
