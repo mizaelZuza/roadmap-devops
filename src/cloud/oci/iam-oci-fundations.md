@@ -1,101 +1,111 @@
-# 🔐 Oracle Cloud Infrastructure (OCI) – Identity and Access Management (IAM)
+# 🔐 OCI – Identity and Access Management (IAM)
 
-> Este documento aborda os principais conceitos e componentes do IAM na Oracle Cloud Infrastructure (OCI), responsável por controlar **quem** pode acessar **quais recursos**, **de que forma** e **sob quais condições**.
+> Este documento aborda os conceitos e componentes do IAM na Oracle Cloud Infrastructure (OCI), responsável por controlar **quem** pode acessar **quais recursos**, **de que forma** e **sob quais condições**.
 
 ---
 
 ## 🧭 1. Conceito de IAM
 
-O **Identity and Access Management (IAM)** é o serviço central de controle de identidade e permissões na OCI.  
-Ele garante que cada recurso seja acessado apenas por usuários ou sistemas devidamente autorizados.
+O **Identity and Access Management (IAM)** é o serviço central de controle de identidade e permissões na OCI. Ele se baseia no conceito de **Principal**, que é uma entidade autorizada a interagir com os recursos. O IAM determina se um Principal é autenticado (AuthN) e se ele tem autorização (AuthZ) para realizar uma ação específica.
 
 ---
 
-## 🧱 2. Componentes Fundamentais
+## 🧱 2. Principais e Componentes Fundamentais
 
-| Componente | Descrição |
-|-------------|------------|
-| **Usuários (Users)** | Representam pessoas ou sistemas que acessam a OCI. |
-| **Grupos (Groups)** | Conjuntos de usuários com permissões em comum. |
-| **Políticas (Policies)** | Definem o que grupos podem fazer (ex: `Allow group DevOps to manage instances in compartment Infra`). |
-| **Compartimentos (Compartments)** | Estrutura lógica para organização e isolamento de recursos. |
-| **Tenancy** | Raiz da hierarquia de identidade, representando toda a conta OCI. |
-| **Domínios de Identidade (Identity Domains)** | Controlam autenticação e federação de identidades. |
-
----
-
-## 🧩 3. Compartimentos (Compartments)
-
-Os **compartimentos** organizam os recursos OCI logicamente.  
-Permitem controle granular de acesso, delegação e auditoria.
-
-- São **hierárquicos** — podem conter subcompartimentos.  
-- As **políticas** se aplicam de forma recursiva (herdadas pelos subníveis).  
-- Exemplo:
-```
-
-Root Tenancy
-├── Compartment Dev
-│   ├── Subcompartment Test
-└── Compartment Prod
-
-````
+| Principal / Componente | Descrição |
+| :--- | :--- |
+| **Usuários (Users)** | Pessoas ou processos que acessam a OCI. Um usuário pode pertencer a um ou mais grupos. |
+| **Grupos (Groups)** | Conjuntos de usuários que compartilham as mesmas permissões. É a forma recomendada de gerenciar autorizações. |
+| **Dynamic Groups** | Grupos de **recursos** (como instâncias de computação) cujos membros são definidos por regras, não por uma lista estática. |
+| **Políticas (Policies)** | Documentos que definem as permissões. Conectam um Principal (quem) a uma ação (o quê) sobre um recurso. |
+| **Compartimentos** | Coleções lógicas para organizar e isolar recursos, aplicando o controle de acesso. |
+| **Identity Domains** | Solução completa para gerenciar identidades, incluindo autenticação, SSO e federação. |
 
 ---
 
-## 🔑 4. Autenticação e Autorização (AuthN e AuthZ)
+## 🔑 3. Autenticação (AuthN) – Provando quem você é
 
-### **AuthN (Authentication)**  
-Processo de **verificar a identidade** do usuário ou sistema.  
-Pode ser feito via:
-- Nome de usuário e senha.
-- API Key (para automação e scripts).
-- Federated SSO (AD, IDCS, etc).
-- MFA (fator adicional de segurança).
+Processo de verificar a identidade de um Principal. A OCI oferece múltiplos métodos, cada um para um caso de uso específico.
 
-### **AuthZ (Authorization)**  
-Define **o que o usuário autenticado pode fazer**.  
-Baseado em **políticas** escritas em linguagem natural.
-
-Exemplo:
-```text
-Allow group NetworkAdmins to manage virtual-network-family in compartment Infra
-````
+| Método | Principal Associado | Caso de Uso Principal |
+| :--- | :--- | :--- |
+| **Senha da Console** | Usuário | Acesso interativo de humanos à console web da OCI. Deve ser combinado com MFA. |
+| **Chaves de API** | Usuário | Automação de scripts (CLI, SDK, Terraform). Consiste em um par de chaves RSA no formato PEM. |
+| **Tokens de Autenticação** | Usuário | Autenticação em APIs que não suportam o IAM padrão (ex: OCI Registry - OCIR). É uma string opaca. |
+| **Instance Principals** | Instância de Compute | Permite que uma instância se autentique para chamar outras APIs da OCI **sem armazenar credenciais**. É o método mais seguro para automação dentro da nuvem. |
 
 ---
 
-## 🧰 5. Tipos de Políticas
+## 📜 4. Autorização (AuthZ) – O que você pode fazer
 
-| Tipo                  | Descrição                                           | Exemplo                                                                |
-| --------------------- | --------------------------------------------------- | ---------------------------------------------------------------------- |
-| **Tenancy-Level**      | Válida para todos os compartimentos.                | `Allow group Admins to manage all-resources in tenancy`                |
-| **Compartment-Level** | Restringe permissões a um compartimento específico. | `Allow group Devs to use instances in compartment Teste`               |
-| **Dynamic Groups**    | Associam instâncias a permissões específicas.       | `Allow dynamic-group WebApps to manage objects in compartment Storage` |
+Após a autenticação, o serviço IAM verifica se o Principal tem permissão para realizar a ação solicitada. Isso é feito através de **Políticas**.
+
+### Sintaxe e Verbos de Políticas
+
+Uma política é uma frase em linguagem quase natural com uma estrutura clara:
+`Allow <principal> to <verb> <resource-type> in <location> where <conditions>`
+
+Os **verbos** definem o nível de permissão, em ordem crescente de poder:
+
+| Verbo | Permissões Concedidas | Exemplo de Ação |
+| :--- | :--- | :--- |
+| `inspect` | Listar recursos e ver suas propriedades (sem acesso a dados confidenciais). | `oci compute instance list` |
+| `read` | Inclui `inspect` + a capacidade de ler os metadados do recurso e seus dados. | Obter os detalhes de uma instância, ler um arquivo de um bucket. |
+| `use` | Inclui `read` + a capacidade de trabalhar com o recurso (ações que não criam nem excluem). | Iniciar/parar uma instância, atualizar regras de segurança. |
+| `manage` | **Permissão total.** Inclui todas as anteriores + criar e excluir o recurso e seus componentes. | Criar uma VCN, terminar uma instância, excluir um bucket. |
 
 ---
 
-## 🧾 6. Identity Domains
+## ⚙️ 5. Principais de Recurso (Resource Principals)
 
-Os **Identity Domains** são ambientes de identidade independentes, integrados à OCI.
-Permitem:
+Permitir que os próprios recursos da OCI se autentiquem de forma segura é um conceito fundamental para automação e segurança, eliminando a necessidade de armazenar credenciais de longa duração (como chaves de API) em arquivos de configuração.
 
-* **Gerenciar autenticação** de usuários e aplicações.
-* **Federar acesso** com provedores externos (ex: Microsoft Entra ID).
-* Controlar **políticas de senha, MFA e ciclo de vida** de identidades.
+### Dynamic Groups
+Um **Dynamic Group** agrupa recursos da OCI (atualmente, instâncias de computação) que atendem a um conjunto de **regras de correspondência (matching rules)**.
+
+- **Exemplo de Regra:** Agrupar todas as instâncias que estão em um compartimento específico.
+  `All {instance.compartment.id = 'ocid1.compartment.oc1..xxxxx'}`
+
+- **Exemplo de Política:** Dar permissão para que todas as instâncias nesse grupo dinâmico leiam segredos no Vault.
+  `Allow dynamic-group AppServer-Group to read secrets in compartment Secrets-Compartment`
+
+### Instance Principals
+É o mecanismo que permite que uma instância de computação (membro de um Dynamic Group) se autentique no IAM. O agente da instância troca um certificado de identidade da instância por um token de segurança temporário, que é usado para assinar as chamadas de API.
+
+---
+
+## 🌐 6. Federação e Identity Domains
+
+Os **Identity Domains** são a solução de IAM da OCI para gerenciar o ciclo de vida de identidades e acessos. Uma de suas funcionalidades mais importantes é a **Federação**.
+
+**Federação** é o processo de estabelecer uma relação de confiança entre a OCI e um **Provedor de Identidade (IdP)** externo, como:
+- Microsoft Entra ID (Azure AD)
+- Okta
+- Active Directory Federation Services (ADFS)
+
+**Como funciona (Single Sign-On - SSO):**
+1. O usuário tenta acessar a console da OCI.
+2. A OCI o redireciona para a página de login do IdP corporativo (ex: login da Microsoft).
+3. O usuário se autentica no IdP.
+4. O IdP envia uma asserção de segurança (SAML 2.0) para o IAM da OCI, confirmando a identidade do usuário.
+5. O IAM da OCI mapeia o usuário federado a um grupo local e concede acesso.
+
+**Benefício:** Os usuários utilizam suas credenciais corporativas para acessar a nuvem, e a empresa mantém um ponto central de gestão de identidades e políticas de segurança (MFA, complexidade de senha, etc.).
 
 ---
 
 ## 🧠 7. Boas Práticas de IAM
 
-* Crie **grupos baseados em função**, não em indivíduo.
-* Aplique o **princípio do menor privilégio**.
-* Use **compartimentos** para separar ambientes (ex: Dev, Test, Prod).
-* Habilite **MFA** para todas as contas administrativas.
-* Utilize **políticas específicas** em vez de permissões amplas.
+- **Princípio do Menor Privilégio:** Sempre conceda a menor permissão necessária. Comece com `inspect` e eleve conforme a necessidade.
+- **Use Grupos:** Atribua permissões a grupos, não a usuários individuais.
+- **Use Dynamic Groups para Recursos:** Prefira *Instance Principals* em vez de armazenar chaves de API em instâncias.
+- **Use Compartimentos:** Separe ambientes (Dev, Test, Prod) e restrinja as políticas ao compartimento relevante.
+- **Habilite MFA:** Exija autenticação multifator para todos os usuários administrativos.
+- **Federação:** Em ambientes corporativos, use federação para centralizar a gestão de identidades.
 
 ---
 
-## 📘 Referências
+## 📘 8. Referências
 
-* [Documentação Oficial – OCI Identity and Access Management](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm)
+- [Documentação Oficial – OCI Identity and Access Management](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm)
 ---
