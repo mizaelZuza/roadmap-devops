@@ -55,13 +55,23 @@ Enquanto o Cloud Guard foca em Detecção, as **Security Zones** focam em **Prev
 | **Security Zone** | **Prevenção** | **Antes** da Ação | **BLOQUEIA** a tentativa de criar um Bucket público. |
 | **Cloud Guard** | **Detecção & Remediação** | **Depois** da Ação | **CORRIGE** um Bucket que *foi* tornado público. |
 
+🔸 **Maximum Security Zone:** É uma "receita" de Security Zone pré-configurada pela Oracle que aplica as políticas de segurança mais rigorosas, como exigir criptografia com chaves gerenciadas pelo cliente (KMS) e impedir a criação de IPs públicos.
+
 🔸 O **Security Advisor** trabalha em conjunto com ambos, fornecendo recomendações para fortalecer a postura de segurança.
+
 
 ---
 
 ## 🔐 4. Vault – Gerenciamento de Criptografia e Segredos
 
-O **OCI Vault** é o serviço centralizado para gerenciamento seguro de chaves de criptografia e segredos, utilizando **Hardware Security Modules (HSM)** para proteção.
+O **OCI Vault** é o serviço centralizado para gerenciamento seguro de chaves de criptografia e segredos. 
+
+### Proteção e Gerenciamento de Chaves
+- **Hardware de Alta Segurança:** As chaves no Vault são armazenadas e processadas em **Hardware Security Modules (HSMs)** com certificação **FIPS 140-2 Level 3**, garantindo que não possam ser extraídas.
+- **Tipos de Gerenciamento:**
+  - **Chaves Gerenciadas pela Oracle:** A Oracle cuida de todo o ciclo de vida, incluindo a rotação.
+  - **Chaves Gerenciadas pelo Cliente:** O cliente tem controle total sobre o ciclo de vida da chave (criação, rotação, exclusão).
+- **Rotação Automática:** O Vault suporta a rotação automática de chaves e segredos em um cronograma definido, uma prática essencial para a higiene de segurança.
 
 ### Componentes Principais
 
@@ -97,23 +107,24 @@ O **OCI Vault** é o serviço centralizado para gerenciamento seguro de chaves d
 
 | Serviço | Propósito |
 | :--- | :--- |
-| **Bastion** | Fornece acesso seguro e temporário (efêmero) a recursos privados (VMs, Bancos de Dados) sem expor portas públicas. |
+| **Bastion** | Fornece acesso **seguro, efêmero e auditável** a recursos privados (VMs, DBs) sem expor portas públicas. Suporta sessões com tempo limitado e gravação de sessão. |
 | **OS Management (OSMS)** | Automação de patches e atualizações de segurança nos sistemas operacionais das instâncias. |
 | **IAM (Identity & Access)** | Controla "Quem pode fazer o quê" (Autenticação e Autorização). Inclui **Instance Principals** e **Dynamic Groups**, que permitem que recursos OCI se autentiquem sem armazenar credenciais. |
-| **Vulnerability Scanning (VSS)** | Analisa hosts em busca de vulnerabilidades (CVEs) para fortalecer a segurança das instâncias. |
-| **Data Safe** | Serviço unificado para segurança de bancos de dados, focando em avaliação de riscos, auditoria e proteção de dados sensíveis. |
-| **Logging & Audit** | O serviço de **Audit** grava um log imutável de todas as chamadas de API. O serviço de **Logging** agrega logs de infraestrutura e aplicações, permitindo análise, alertas e integração com o **Logging Analytics**. |
+| **Vulnerability Scanning (VSS)** | Analisa hosts em busca de portas abertas e vulnerabilidades conhecidas (CVEs). |
+| **Data Safe** | Plataforma unificada para segurança de bancos de dados. Suas funções incluem: **Avaliação de Segurança**, **Avaliação de Usuários**, **Descoberta e Mascaramento de Dados** e **Auditoria de Atividade**. |
+| **Logging & Audit** | O serviço de **Audit** grava um log imutável de todas as chamadas de API (retido por 365 dias). O serviço de **Logging** agrega logs de infraestrutura e aplicações para análise e alertas. |
 
 ---
 
 ## 🧠 6. Boas Práticas e Conceitos-Chave
 
-*   **Prevenção Primeiro:** Use **Security Zones** para compartimentos com workloads críticos para impor políticas de segurança desde a criação dos recursos.
+*   **Prevenção Primeiro:** Use **Security Zones** (especialmente a *Maximum Security Zone*) para compartimentos com workloads críticos.
 *   **Defesa em Camadas:** Combine **Cloud Guard** (detecção) com **Security Zones** (prevenção) para uma estratégia de segurança robusta.
-*   **Centralize Segredos:** Armazene todas as chaves de criptografia, senhas e tokens no **OCI Vault** em vez de deixá-los no código ou em arquivos de configuração.
-*   **Menor Privilégio:** Sempre aplique políticas de **IAM** que concedam apenas as permissões estritamente necessárias para uma função. Use **Instance Principals** e **Dynamic Groups** para evitar o uso de chaves de acesso de longa duração.
+*   **Centralize Segredos:** Armazene todas as chaves, senhas e tokens no **OCI Vault**.
+*   **Ciclo de Vida de Chaves:** Implemente um ciclo de vida para chaves e segredos, utilizando a **rotação automática do Vault** para reduzir o risco de credenciais comprometidas.
+*   **Menor Privilégio:** Sempre aplique políticas de **IAM** que concedam apenas as permissões estritamente necessárias.
 *   **Acesso Seguro:** Utilize o serviço **Bastion** para acesso a recursos privados, evitando o uso de *jump hosts* com IPs públicos permanentes.
-*   **Monitoramento Contínuo:** Revise regularmente os logs do **Audit** e os problemas reportados pelo **Cloud Guard** para identificar e responder a ameaças. Utilize o **Logging Analytics** para análises mais profundas.
+*   **Monitoramento Contínuo:** Revise regularmente os logs do **Audit** e os problemas reportados pelo **Cloud Guard** para identificar e responder a ameaças.
 
 ---
 
