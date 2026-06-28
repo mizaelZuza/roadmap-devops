@@ -1,0 +1,102 @@
+Vagrant.configure("2") do |config|
+
+    config.vm.box = "generic/ubuntu2204"
+
+    config.vm.provision "shell", inline: <<-SHELL
+        apt-get update -y
+        apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+        apt-get update -y
+        apt-get install -y docker-ce docker-ce-cli containerd.io
+        systemctl enable docker
+        systemctl start docker
+        # Adiciona o usuário do vagrant ao grupo docker para não precisar usar sudo
+        usermod -aG docker vagrant
+    SHELL
+
+    config.vm.define "swarm-manager1" do |node|
+        node.vm.hostname = "swarm-manager1"
+        node.vm.network "private_network", ip: "192.168.56.11"
+        node.vm.provider "libvirt" do |v|
+            v.memory = 1024
+            v.cpus = 1
+        end
+    end
+
+    config.vm.define "swarm-manager2" do |node|
+        node.vm.hostname = "swarm-manager2"
+        node.vm.network "private_network", ip: "192.168.56.12"
+        node.vm.provider "libvirt" do |v|
+            v.memory = 1024
+            v.cpus = 1
+        end
+    end
+
+    config.vm.define "swarm-manager3" do |node|
+        node.vm.hostname = "swarm-manager3"
+        node.vm.network "private_network", ip: "192.168.56.13"
+        node.vm.provider "libvirt" do |v|
+            v.memory = 1024
+            v.cpus = 1
+        end
+    end
+
+    #vm dedicada ao LB externo
+    config.vm.define "load-balancer" do |node|
+        node.vm.hostname = "load-balancer"
+        node.vm.network "private_network", ip:"192.168.56.10"
+        node.vm.provider "libvirt" do |v|
+            v.memory = 1024
+            v.cpus = 1
+            v.cpu_mode = "host-model"
+        end
+
+        node.vm.provision "shell", inline: <<-SHELL
+            apt-get update -y
+            apt-get install -y haproxy
+
+            # Cria diretório para certificados
+            mkdir -p /etc/haproxy/certs
+
+            # Gera certificado auto-assinado
+            openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+                -keyout /etc/haproxy/certs/meuapp.key \
+                -out /etc/haproxy/certs/meuapp.crt \
+                -subj "/C=BR/ST=SP/L=SaoPaulo/O=Laboratorio/CN=*.swarm.lan"
+
+            # Combina cert + key em um arquivo PEM
+            cat /etc/haproxy/certs/meuapp.crt /etc/haproxy/certs/meuapp.key \
+                > /etc/haproxy/certs/meuapp.pem
+
+            # Configuração do HAProxy
+            cat <<EOT > /etc/haproxy/haproxy.cfg
+global
+    ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256
+    ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11
+
+defaults
+    timeout client 30s
+    timeout connect 5s
+    timeout server 30s
+
+frontend lb_publico
+    bind *:80
+    bind *:443 ssl crt /etc/haproxy/certs/meuapp.pem
+    mode http
+    redirect scheme https code 301 if !{ ssl_fc }
+    default_backend cluster_swarm
+
+backend cluster_swarm
+    mode http
+    balance roundrobin
+    http-request set-header X-Forwarded-Proto https if { ssl_fc }
+    http-request set-header X-Forwarded-For %[src]
+    server manager1 192.168.56.11:80 check
+    server manager2 192.168.56.12:80 check
+    server manager3 192.168.56.13:80 check
+EOT
+            systemctl restart haproxy
+        SHELL
+    end
+end

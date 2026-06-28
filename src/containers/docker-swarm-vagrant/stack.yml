@@ -1,0 +1,54 @@
+version: '3.8'
+
+networks:
+  public-net:
+    driver: overlay
+    attachable: true
+  private-net:
+    driver: overlay
+
+services:
+  # O PROXY REVERSO (TRAEFIK)
+  traefik:
+    image: traefik:latest
+    command:
+      - "--api.insecure=true"        # Ativa o painel visual (Dashboard)
+      - "--providers.swarm=true"     # Diz ao Traefik para escutar o Docker Swarm
+      - "--providers.swarm.exposedbydefault=false" # Segurança: expõe apenas o que pedirmos
+      - "--entrypoints.web.address=:80" # Cria a porta de entrada 80 (HTTP)
+    ports:
+      - "80:80"                      # Porta para o tráfego dos usuários (e do Load Balancer)
+      - "8080:8080"                  # Porta para você acessar o painel visual do Traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro # Permissão para ler os containers do Swarm
+    networks:
+      - public-net
+      - private-net
+    deploy:
+      placement:
+        constraints: [node.role == manager] # O Traefik precisa rodar em um Manager para ler o Swarm
+
+  # SUA APLICAÇÃO (O CONTAINER FINAL)
+  meu-app:
+    image: nginxdemos/hello:plain-text
+    networks:
+      - private-net
+    deploy:
+      replicas: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.app1-rota.entrypoints=web"
+        - "traefik.http.routers.app1-rota.rule=Host(`app1.swarm.lan`)"
+        - "traefik.http.services.app1-servico.loadbalancer.server.port=80"
+
+  meu-app2:
+    image: nginxdemos/hello:plain-text
+    networks:
+      - private-net
+    deploy:
+      replicas: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.app2-rota.entrypoints=web"
+        - "traefik.http.routers.app2-rota.rule=Host(`app2.swarm.lan`)"
+        - "traefik.http.services.app2-servico.loadbalancer.server.port=80"
