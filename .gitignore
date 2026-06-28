@@ -1,3 +1,5 @@
 prompts
 rascunhos
 videos
+.vagrant/
+*.pem
